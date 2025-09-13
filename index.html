@@ -1,0 +1,688 @@
+
+<!DOCTYPE HTML>
+<!-- saved from url=(0016)http://localhost -->
+
+
+<html>
+  
+<head>
+    <title>.::Electronic Recreational Dive Planner - eRDPML::.</title>
+    <!-- meta name="viewport" content="width=800" -->
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <meta http-equiv="X-UA-Compatible" content="IE=10">
+    <script src="engine.js" type="text/javascript"></script>
+    <script type="text/javascript">
+// from http://www.quirksmode.org/js/detect.html
+var BrowserDetect = {
+	init: function () {
+		this.browser = this.searchString(this.dataBrowser) || "An unknown browser";
+		this.version = this.searchVersion(navigator.userAgent)
+			|| this.searchVersion(navigator.appVersion)
+			|| "an unknown version";
+		this.OS = this.searchString(this.dataOS) || "an unknown OS";
+	},
+	searchString: function (data) {
+		for (var i=0;i<data.length;i++)	{
+			var dataString = data[i].string;
+			var dataProp = data[i].prop;
+			this.versionSearchString = data[i].versionSearch || data[i].identity;
+			if (dataString) {
+				if (dataString.indexOf(data[i].subString) != -1)
+					return data[i].identity;
+			}
+			else if (dataProp)
+				return data[i].identity;
+		}
+	},
+	searchVersion: function (dataString) {
+		var index = dataString.indexOf(this.versionSearchString);
+		if (index == -1) return;
+		return parseFloat(dataString.substring(index+this.versionSearchString.length+1));
+	},
+	dataBrowser: [
+		{
+			string: navigator.userAgent,
+			subString: "Chrome",
+			identity: "Chrome"
+		},
+		{ 	string: navigator.userAgent,
+			subString: "OmniWeb",
+			versionSearch: "OmniWeb/",
+			identity: "OmniWeb"
+		},
+		{
+			string: navigator.vendor,
+			subString: "Apple",
+			identity: "Safari",
+			versionSearch: "Version"
+		},
+		{
+			prop: window.opera,
+			identity: "Opera",
+			versionSearch: "Version"
+		},
+		{
+			string: navigator.vendor,
+			subString: "iCab",
+			identity: "iCab"
+		},
+		{
+			string: navigator.vendor,
+			subString: "KDE",
+			identity: "Konqueror"
+		},
+		{
+			string: navigator.userAgent,
+			subString: "Firefox",
+			identity: "Firefox"
+		},
+		{
+			string: navigator.vendor,
+			subString: "Camino",
+			identity: "Camino"
+		},
+		{		// for newer Netscapes (6+)
+			string: navigator.userAgent,
+			subString: "Netscape",
+			identity: "Netscape"
+		},
+		{
+			string: navigator.userAgent,
+			subString: "MSIE",
+			identity: "Explorer",
+			versionSearch: "MSIE"
+		},
+		{
+			string: navigator.userAgent,
+			subString: "Gecko",
+			identity: "Mozilla",
+			versionSearch: "rv"
+		},
+		{ 		// for older Netscapes (4-)
+			string: navigator.userAgent,
+			subString: "Mozilla",
+			identity: "Netscape",
+			versionSearch: "Mozilla"
+		}
+	],
+	dataOS : [
+		{
+			string: navigator.platform,
+			subString: "Win",
+			identity: "Windows"
+		},
+		{
+			string: navigator.platform,
+			subString: "Mac",
+			identity: "Mac"
+		},
+		{
+			   string: navigator.userAgent,
+			   subString: "iPhone",
+			   identity: "iPhone/iPod"
+	    },
+		{
+			string: navigator.platform,
+			subString: "Linux",
+			identity: "Linux"
+		}
+	]
+
+};
+BrowserDetect.init();
+        
+        function loaded(){
+            addEmbed();
+            resizeDevice();
+            window.onresize = function(event) {resizeDevice();} ;
+
+            // will only be called when the HTML nodes are loaded
+            setTimeout(checkActivate, 20);
+        }
+
+        function checkActivate(){
+            // waits for the javascript file to be loaded
+            if (typeof start == "function" && typeof loadMenu == "function"){
+                activate();
+            } else {
+                setTimeout(checkActivate, 20);
+            }
+        }
+
+        function activate(){
+            start();
+            loadMenu();
+        }
+
+        function addEmbed(){
+            // hack to prevent warnings
+            var browser = BrowserDetect.browser;
+
+            var newdiv = document.createElement('div');
+            if (browser == "Explorer"){ // IE
+                newdiv.innerHTML='<embed id="click-alt" height="0px" width="0px" src="padi-click.mp3" style="outline:0"><embed id="beep-alt" height="0px" width="0px" src="padi-beep.mp3" style="outline:0">';
+                newdiv.style.position="absolute";
+                newdiv.style.top="1000px";
+                newdiv.style.left="1000px";
+            } else { // everything else
+                newdiv.innerHTML='<audio id="click"> <source src="padi-click.mp3" type="audio/mpeg"> <source src="padi-click.ogg" type="audio/ogg"> </audio>'+
+                '<audio id="beep"> <source src="padi-beep.mp3" type="audio/mpeg"> <source src="padi-beep.ogg" type="audio/ogg"> </audio>';
+            }
+            document.getElementById('device').appendChild(newdiv);
+        }
+
+        function resizeDevice(){
+            // device size
+            var device_width = 800;
+            var device_height = 490;
+
+            var width_ratio = window.innerWidth / device_width;
+            var height_ratio = window.innerHeight / device_height;
+            
+            var ratio = (width_ratio < height_ratio)? width_ratio : height_ratio;
+            
+            var device = document.getElementById('device');
+            var transform = "matrix(" + ratio + ", 0, 0, " + ratio + ", 0, 0)";
+
+            var browser = BrowserDetect.browser;
+            var version = BrowserDetect.version;
+            
+            device.style.setProperty("transform-origin", "0px 0px");
+            device.style.setProperty("transform", transform);
+            device.style.setProperty("-ms-transform-origin", "0px 0px");
+            device.style.setProperty("-ms-transform", transform);
+            device.style.setProperty("-webkit-transform-origin", "0px 0px");
+            device.style.setProperty("-webkit-transform", transform);
+        }
+    </script>
+
+<style>
+
+@font-face {
+    font-family: DigitalFont;
+    src: url(./digitalfont.ttf);
+    font-weight:400;
+}
+
+/* device */
+
+#device {
+    position: relative;
+    background: url(images/bg.png) no-repeat 0 0;
+    background-size: cover;
+    margin: 10px;
+    height: 470px;
+    width: 780px;
+}
+
+#display {
+    position: absolute;
+    font-family: DigitalFont;
+    font-size: 50px;
+    letter-spacing: 3;
+    top: 65px;
+    left: 120px;
+}
+
+.dispChar {
+    float:left;
+    text-align: center;
+    width: 28px;
+    height: 48px;
+    line-height:80px;
+}
+
+#imperial-sign {
+    position: absolute;
+    font-family: DigitalFont;
+    font-size: 20px;
+    top: 76px;
+    left: 602px;
+    line-height: 22px;
+    visibility: hidden;
+}
+
+#meter-sign {
+    position: absolute;
+    font-family: DigitalFont;
+    font-size: 20px;
+    top: 110px;
+    left: 602px;
+    line-height: 22px;
+    visibility: hidden;
+}
+
+#sound-icon {
+    position: absolute;
+    background: url(images/sound.png) no-repeat 0 0;
+    background-size: cover;
+    top: 90px;
+    left: 640px;
+    height:28px;
+    width:29px;
+}
+
+/* menu stuff */
+
+#units-button {
+    position: absolute;
+    top: 0px;
+    left: 39px;
+    height: 33px;
+    width: 92px;
+}
+#rules-button {
+    position: absolute;
+    top: 0px;
+    left: 134px;
+    height: 33px;
+    width: 92px;
+}
+#units-menu {
+    position: absolute;
+    top: 28px;
+    left: 53px;
+    height: 46px;
+    width: 90px;
+    background-color: #1785a6;
+    color: #fff;
+    font-size: 16px;
+    padding:4px;
+    text-align: center;
+    font-family: sans-serif;
+    font-weight: 500;
+    border-radius: 5px;
+    letter-spacing: 1;
+    visibility:hidden;
+}
+
+.menu-item {
+    padding: 3px;
+}
+
+#rules {
+    position: absolute;
+    background: url(images/rules.png) no-repeat 0 0;
+    background-size: cover;
+    top: 0px;
+    left: 0px;
+    height: 470px;
+    width: 780px;
+    visibility:hidden;
+}
+
+/* button table */
+
+#button-table {
+    position: absolute;
+    top: 173px;
+    left:45px;
+    border: 0;
+    border-spacing:0px;
+}
+td {
+    height:1px;
+}
+/* buttons */
+.button-1 {
+    background: url(images/button_1.png) no-repeat 0 0;
+    background-size: cover;
+    width: 125px;
+    height:68px;
+    border:0px;
+    outline:none;
+}
+.button-1:active {
+    background: url(images/button_1_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-2 {
+    background: url(images/button_2.png) no-repeat 0 0;
+    background-size: cover;
+    width: 121px;
+    height:68px;
+    border:0px;
+    outline:none;
+}
+.button-2:active {
+    background: url(images/button_2_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-3 {
+    background: url(images/button_3.png) no-repeat 0 0;
+    background-size: cover;
+    width: 123px;
+    height:68px;
+    border:0px;
+    outline:none;
+}
+.button-3:active {
+    background: url(images/button_3_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-delete {
+    background: url(images/button_delete.png) no-repeat 0 0;
+    background-size: cover;
+    width: 125px;
+    height:68px;
+    border:0px;
+    outline:none;
+}
+.button-delete:active {
+    background: url(images/button_delete_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-sound {
+    background: url(images/button_sound.png) no-repeat 0 0;
+    background-size: cover;
+    width: 123px;
+    height:68px;
+    border:0px;
+    outline:none;
+}
+.button-sound:active {
+    background: url(images/button_sound_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+
+.button-4 {
+    background: url(images/button_4.png) no-repeat 0 0;
+    background-size: cover;
+    width: 125px;
+    height:65px;
+    border:0px;
+    outline:none;
+}
+.button-4:active {
+    background: url(images/button_4_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-5 {
+    background: url(images/button_5.png) no-repeat 0 0;
+    background-size: cover;
+    width: 121px;
+    height:65px;
+    border:0px;
+    outline:none;
+}
+.button-5:active {
+    background: url(images/button_5_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-6 {
+    background: url(images/button_6.png) no-repeat 0 0;
+    background-size: cover;
+    width: 123px;
+    height:65px;
+    border:0px;
+    outline:none;
+}
+.button-6:active {
+    background: url(images/button_6_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-back {
+    background: url(images/button_back.png) no-repeat 0 0;
+    background-size: cover;
+    width: 125px;
+    height:65px;
+    border:0px;
+    outline:none;
+}
+.button-back:active {
+    background: url(images/button_back_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-on {
+    background: url(images/button_on.png) no-repeat 0 0;
+    background-size: cover;
+    width: 123px;
+    height:65px;
+    border:0px;
+    outline:none;
+}
+.button-on:active {
+    background: url(images/button_on_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-7 {
+    background: url(images/button_7.png) no-repeat 0 0;
+    background-size: cover;
+    width: 125px;
+    height:67px;
+    border:0px;
+    outline:none;
+}
+.button-7:active {
+    background: url(images/button_7_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-8 {
+    background: url(images/button_8.png) no-repeat 0 0;
+    background-size: cover;
+    width: 121px;
+    height:67px;
+    border:0px;
+    outline:none;
+}
+.button-8:active {
+    background: url(images/button_8_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-8 {
+    background: url(images/button_8.png) no-repeat 0 0;
+    background-size: cover;
+    width: 121px;
+    height:67px;
+    border:0px;
+    outline:none;
+}
+.button-8:active {
+    background: url(images/button_8_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-9 {
+    background: url(images/button_9.png) no-repeat 0 0;
+    background-size: cover;
+    width: 123px;
+    height:67px;
+    border:0px;
+    outline:none;
+}
+.button-9:active {
+    background: url(images/button_9_pressed.png) 0 0;
+    background-size: cover;
+}
+
+.button-enter {
+    background: url(images/button_enter.png) no-repeat 0 0;
+    background-size: cover;
+    width: 125px;
+    height:67px;
+    border:0px;
+    outline:none;
+}
+.button-enter:active {
+    background: url(images/button_enter_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-mode {
+    background: url(images/button_mode.png) no-repeat 0 0;
+    background-size: cover;
+    width: 123px;
+    height:67px;
+    border:0px;
+    outline:none;
+}
+.button-mode:active {
+    background: url(images/button_mode_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-yes {
+    background: url(images/button_yes.png) no-repeat 0 0;
+    background-size: cover;
+    width: 125px;
+    height:67px;
+    border:0px;
+    outline:none;
+}
+.button-yes:active {
+    background: url(images/button_yes_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-0 {
+    background: url(images/button_0.png) no-repeat 0 0;
+    background-size: cover;
+    width: 121px;
+    height:67px;
+    border:0px;
+    outline:none;
+}
+.button-0:active {
+    background: url(images/button_0_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+.button-no {
+    background: url(images/button_no.png) no-repeat 0 0;
+    background-size: cover;
+    width: 123px;
+    height:67px;
+    border:0px;
+    outline:none;
+}
+.button-no:active {
+    background: url(images/button_no_pressed.png) 0 0;
+    background-size: cover;
+    outline:none;
+}
+
+
+
+
+</style>
+</head>
+
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0"  onLoad="loaded()">
+    <div id="device">
+
+<table id="button-table" cellpadding="0" cellspacing="0">
+	<tr>
+		<td>
+            <button class="button-1" onclick="processInput(1)"></button></td>
+		<td>
+            <button class="button-2" onclick="processInput(2)"></button></td>
+		<td>
+            <button class="button-3" onclick="processInput(3)"></button></td>
+        <td rowspan="5" width="77" height="430"></td>
+		<td>
+            <button class="button-delete" onclick="processInput('del')"></button></td>
+		<td>
+            <button class="button-sound" onclick="processInput('mute')"></button></td>
+	</tr>
+	<tr>
+		<td >
+            <button class="button-4" onclick="processInput(4)"></button></td>
+		<td>
+            <button class="button-5" onclick="processInput(5)"></button></td>
+		<td>
+            <button class="button-6" onclick="processInput(6)"></button></td>
+		<td>
+            <button class="button-back" onclick="processInput('back')"></button></td>
+		<td >
+            <button class="button-on" onclick="processInput('reset')"></button></td>
+	</tr>
+	<tr>
+		<td >
+            <button class="button-7" onclick="processInput(7)"></button></td>
+		<td>
+            <button class="button-8" onclick="processInput(8)"></button></td>
+		<td>
+            <button class="button-9" onclick="processInput(9)"></button></td>
+		<td>
+            <button class="button-enter" onclick="processInput('enter')"></button></td>
+		<td >
+            <button class="button-mode" onclick="processInput('mode')"></button></td>
+	</tr>
+	<tr>
+		<td >
+            <button class="button-yes" onclick="processInput('yes')"></button></td>
+		<td>
+            <button class="button-0" onclick="processInput(0)"></button></td>
+		<td>
+            <button class="button-no" onclick="processInput('no')"></button></td>
+	</tr>
+</table>
+
+    <div id="display">DIVE PLANNING</div>
+    <div id="sound-icon"></div>
+
+    <div id="meter-sign">M</div>
+    <div id="imperial-sign">FT</div>
+
+    <div id="units-menu">
+        <div id="metric-button" class="menu-item" onclick="changeUnit('m')">Metric</div>
+        <div id="imperial-button" class="menu-item" onclick="changeUnit('ft')">Imperial</div>
+    </div>
+    <div id="rules"></div>
+
+    <div id="file-button"></div>
+    <div id="units-button"></div>
+    <div id="zoom-button"></div>
+    <div id="rules-button"></div>
+<script>
+  const rulesDiv = document.getElementById("rules");
+  let toggle = false;
+
+  rulesDiv.addEventListener("click", () => {
+    if (toggle) {
+      rulesDiv.style.backgroundImage = "url('images/rules.png')";
+    } else {
+      rulesDiv.style.backgroundImage = "url('images/rules2.png')";
+    }
+    rulesDiv.style.backgroundSize = "cover";
+    rulesDiv.style.backgroundPosition = "center";
+    
+    toggle = !toggle; // flip state
+  });
+</script>
+
+</div>
+
+</body>
+
+</html>
